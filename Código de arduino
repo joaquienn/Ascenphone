@@ -1,0 +1,130 @@
+//Control del motor
+#define IN1 8 //Conexión al relé para controlar la dirección
+#define IN2 9 //Conexión al relé para controlar la dirección
+
+//Llamadas al ascensor
+#define P2 2 //Segundo piso
+#define P1 3 //Primer piso
+#define P 4 //Planta baja
+
+//Finales de carrera
+#define C2 5 //Final de carrera segundo piso
+#define C1 6 //Final de carrera primer piso
+#define C 7 //Final de carrera planta baja
+
+//Estado de pulsadores para los pisos
+int piso2 = 0;
+int piso1 = 0;
+int piso = 0;
+
+void setup() {
+  // put your setup code here, to run once:
+    pinMode(IN1, OUTPUT);
+    pinMode(IN2, OUTPUT);
+    
+    pinMode(P, INPUT);
+    pinMode(P1, INPUT);
+    pinMode(P2, INPUT);
+    pinMode(C, INPUT);
+    pinMode(C1, INPUT);
+    pinMode(C2, INPUT);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  int carrera, carrera1, carrera2;
+  piso=digitalRead(P);
+  piso1=digitalRead(P1);
+  piso2=digitalRead(P2);
+  lecturasensores (&carrera, &carrera1, &carrera2); //Llamamos a la función para leer cada piso
+  
+  if(carrera==1){  //Detecta que está en la planta baja
+    if(piso1==HIGH){ //Es llamado al primer piso
+      while(carrera1==0){ //Hasta no llegar al primer piso seguirá subiendo
+        lecturasensores (&carrera, &carrera1, &carrera2);
+        digitalWrite(IN1, HIGH);
+        digitalWrite(IN2, LOW);
+      }
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+    }
+    if(piso2==HIGH){ //Es llamado al segundo piso
+      while(carrera2==0){ //Hasta no llegar al segundo piso seguirá subiendo
+        lecturasensores (&carrera, &carrera1, &carrera2);
+        digitalWrite(IN1, HIGH);
+        digitalWrite(IN2, LOW);
+      } //Una vez que llega se detiene
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+    }
+  }
+  if(carrera1==1){ //Detecta que está en el primer piso
+    if(piso==HIGH){ //Es llamado a la planta baja
+      while(carrera==0){ //Hasta no llegar a la planta baja seguirá bajando
+        lecturasensores (&carrera, &carrera1, &carrera2);
+        digitalWrite(IN1, LOW);
+        digitalWrite(IN2, HIGH);
+      } //Una vez que llega se detiene
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+    }
+    if(piso2==HIGH){ //Es llamado al segundo piso
+      while(carrera2==0){ //Hasta no llegar al segundo piso seguirá subiendo
+        lecturasensores (&carrera, &carrera1, &carrera2);
+        digitalWrite(IN1, HIGH);
+        digitalWrite(IN2, LOW);
+      } //Una vez que llega se detiene
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+    }
+  }
+  if(carrera2==1){ //Detecta que está en el segundo piso
+    if(piso1==HIGH){ //Es llamado al primer piso
+      while(carrera1==0){ //Hasta no llegar al primer piso seguirá bajando
+        lecturasensores (&carrera, &carrera1, &carrera2);
+        digitalWrite(IN1, LOW);
+        digitalWrite(IN2, HIGH);
+      } //Una vez que llega se detiene
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+    }
+    if(piso==HIGH){ //Es llamado a la planta baja
+      while(carrera==0){ //Hasta no llegar a la planta bajá seguirá bajando
+        lecturasensores (&carrera, &carrera1, &carrera2);
+        digitalWrite(IN1, LOW);
+        digitalWrite(IN2, HIGH);
+      } //Una vez que llega se detiene
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+    }
+  }
+}
+
+void lecturasensores (int *carrera,int *carrera1,int *carrera2) {
+
+int c, c1, c2;
+
+//Se leen los finales de carrera de cada piso
+  c=digitalRead(C);
+delay(5);
+  c1=digitalRead(C1);
+delay(5);
+  c2=digitalRead(C2);
+delay(5);
+
+
+//Se covierte el estado de los finale de carrera en valores
+if  (c==HIGH)
+    *carrera=1;
+else
+    *carrera=0;
+if  (c1==HIGH)
+    *carrera1=1;
+else
+    *carrera1=0;
+if  (c2==HIGH)
+    *carrera2=1;
+else
+    *carrera2=0;
+}
